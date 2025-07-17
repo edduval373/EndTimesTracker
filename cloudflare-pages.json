@@ -1,6 +1,6 @@
 {
   "build": {
-    "command": "npm run build && npm run build:server",
+    "command": "npm run build",
     "destination": "dist/public"
   },
   "env": {
