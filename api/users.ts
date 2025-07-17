@@ -1,6 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { storage } from '../server/storage.js';
 import { insertUserSchema } from '../shared/schema.js';
+import { pool } from '../server/db.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Enable CORS
@@ -10,6 +11,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
+  }
+
+  // Add debugging endpoint
+  if (req.method === 'GET' && req.query.debug === 'true') {
+    try {
+      console.log('=== DEBUG INFO ===');
+      console.log('NODE_ENV:', process.env.NODE_ENV);
+      console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
+      console.log('DATABASE_URL length:', process.env.DATABASE_URL?.length);
+      console.log('DATABASE_URL prefix:', process.env.DATABASE_URL?.substring(0, 30) + '...');
+      
+      // Test raw database connection
+      console.log('Testing raw database connection...');
+      const testQuery = await pool.query('SELECT NOW() as current_time, version() as pg_version');
+      console.log('Raw DB test successful:', testQuery.rows[0]);
+      
+      return res.status(200).json({
+        status: 'debug',
+        env: process.env.NODE_ENV,
+        databaseConfigured: !!process.env.DATABASE_URL,
+        databaseUrlLength: process.env.DATABASE_URL?.length,
+        dbTest: testQuery.rows[0],
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Debug test failed:', error);
+      return res.status(500).json({
+        status: 'debug_failed',
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      });
+    }
   }
 
   if (req.method === 'POST') {
@@ -30,19 +63,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const validatedData = insertUserSchema.parse(req.body);
       console.log('Validated data:', validatedData);
       
-      // Test database connection with timeout
-      console.log('Testing database connection...');
-      const connectionTest = Promise.race([
-        storage.getUserByEmail('test@connection.com'),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Connection timeout')), 5000))
-      ]);
+      // Test database connection with enhanced logging
+      console.log('=== STARTING DATABASE TEST ===');
+      console.log('Environment:', process.env.NODE_ENV);
+      console.log('Database URL configured:', !!process.env.DATABASE_URL);
       
+      // Test raw connection first
       try {
-        const testResult = await connectionTest;
-        console.log('Connection test result:', testResult);
-      } catch (connError) {
-        console.error('Connection test failed:', connError);
-        throw new Error(`Database connection failed: ${connError instanceof Error ? connError.message : String(connError)}`);
+        console.log('Testing raw database connection...');
+        const rawTest = await pool.query('SELECT 1 as test');
+        console.log('Raw connection successful:', rawTest.rows[0]);
+      } catch (rawError) {
+        console.error('Raw connection failed:', rawError);
+        throw new Error(`Raw database connection failed: ${rawError instanceof Error ? rawError.message : String(rawError)}`);
+      }
+      
+      // Test storage layer
+      try {
+        console.log('Testing storage layer...');
+        const storageTest = await storage.getUserByEmail('test@connection.com');
+        console.log('Storage test result:', storageTest);
+      } catch (storageError) {
+        console.error('Storage test failed:', storageError);
+        throw new Error(`Storage layer failed: ${storageError instanceof Error ? storageError.message : String(storageError)}`);
       }
       
       // Check if user already exists
@@ -58,13 +101,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.log('New user created:', newUser);
       return res.status(201).json(newUser);
     } catch (error) {
-      console.error('Error creating user:', error);
-      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      console.error('=== ERROR CREATING USER ===');
+      console.error('Error message:', error instanceof Error ? error.message : String(error));
       console.error('Error name:', error instanceof Error ? error.name : 'Unknown');
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      console.error('Error code:', (error as any)?.code);
+      console.error('Error detail:', (error as any)?.detail);
+      console.error('Error hint:', (error as any)?.hint);
+      console.error('Full error object:', error);
+      
       return res.status(500).json({ 
         message: "Failed to create user", 
         error: error instanceof Error ? error.message : String(error),
-        type: error instanceof Error ? error.name : 'Unknown'
+        type: error instanceof Error ? error.name : 'Unknown',
+        code: (error as any)?.code,
+        detail: (error as any)?.detail,
+        hint: (error as any)?.hint,
+        timestamp: new Date().toISOString()
       });
     }
   }
