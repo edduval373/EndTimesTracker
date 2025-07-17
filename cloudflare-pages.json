@@ -1,6 +1,6 @@
 {
   "build": {
-    "command": "npm run build",
+    "command": "npm run build && npm run build:server",
     "destination": "dist/public"
   },
   "env": {
@@ -8,11 +8,6 @@
     "NPM_VERSION": "10"
   },
   "redirects": [
-    {
-      "source": "/api/*",
-      "destination": "https://endtimestracker.app/api/:splat",
-      "status": 200
-    },
     {
       "source": "/*",
       "destination": "/index.html",
