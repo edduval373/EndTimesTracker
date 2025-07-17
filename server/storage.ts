@@ -1,4 +1,4 @@
-import { biblicalEvents, newsEvents, propheticTopics, type BibleEvent, type InsertBiblicalEvent, type NewsEvent, type InsertNewsEvent, type PropheticTopic, type InsertPropheticTopic } from "@shared/schema";
+import { biblicalEvents, newsEvents, propheticTopics, users, type BibleEvent, type InsertBiblicalEvent, type NewsEvent, type InsertNewsEvent, type PropheticTopic, type InsertPropheticTopic, type User, type InsertUser } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 
@@ -17,6 +17,11 @@ export interface IStorage {
   getPropheticTopics(): Promise<PropheticTopic[]>;
   getPropheticTopicById(id: number): Promise<PropheticTopic | undefined>;
   createPropheticTopic(topic: InsertPropheticTopic): Promise<PropheticTopic>;
+  
+  // Users
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  getUserById(id: number): Promise<User | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -75,6 +80,25 @@ export class DatabaseStorage implements IStorage {
       .values(insertTopic)
       .returning();
     return topic;
+  }
+
+  // Users
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async getUserById(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 }
 

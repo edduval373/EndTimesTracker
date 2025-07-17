@@ -35,6 +35,13 @@ export const propheticTopics = pgTable("prophetic_topics", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertBiblicalEventSchema = createInsertSchema(biblicalEvents).omit({
   id: true,
   createdAt: true,
@@ -51,6 +58,11 @@ export const insertPropheticTopicSchema = createInsertSchema(propheticTopics).om
   lastUpdated: true,
 });
 
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertBiblicalEvent = z.infer<typeof insertBiblicalEventSchema>;
 export type BibleEvent = typeof biblicalEvents.$inferSelect;
 
@@ -59,3 +71,6 @@ export type NewsEvent = typeof newsEvents.$inferSelect;
 
 export type InsertPropheticTopic = z.infer<typeof insertPropheticTopicSchema>;
 export type PropheticTopic = typeof propheticTopics.$inferSelect;
+
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type User = typeof users.$inferSelect;

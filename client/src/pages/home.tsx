@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SoonToCome from "@/components/tabs/soon-to-come";
@@ -6,10 +6,22 @@ import RecentFulfillments from "@/components/tabs/recent-fulfillments";
 import BiblicalEvents from "@/components/tabs/biblical-events";
 import CurrentNews from "@/components/tabs/current-news";
 import ExploreTopics from "@/components/tabs/explore-topics";
+import { EmailDialog } from "@/components/EmailDialog";
+import { useUserCookie } from "@/hooks/useUserCookie";
 import logoPath from "@assets/fulllogo_transparent_nobuffer_1751729917299.png";
 import jerusalemImage from "@assets/Jerusalem_1751729573155.jpeg";
 
 export default function Home() {
+  const { hasUserCookie, isLoading } = useUserCookie();
+  const [showEmailDialog, setShowEmailDialog] = useState(false);
+
+  // Show email dialog when user doesn't have a cookie and loading is complete
+  useEffect(() => {
+    if (!isLoading && !hasUserCookie) {
+      setShowEmailDialog(true);
+    }
+  }, [isLoading, hasUserCookie]);
+
   return (
     <div className="min-h-screen bg-slate-50 font-inter">
       {/* Header with Jerusalem backdrop */}
@@ -172,6 +184,12 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Email Collection Dialog */}
+      <EmailDialog 
+        isOpen={showEmailDialog} 
+        onClose={() => setShowEmailDialog(false)} 
+      />
     </div>
   );
 }
