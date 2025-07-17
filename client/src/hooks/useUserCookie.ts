@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getCookie, deleteCookie } from '@/utils/cookies';
 
 export function useUserCookie() {
   const [userId, setUserId] = useState<string | null>(null);
@@ -6,12 +7,16 @@ export function useUserCookie() {
 
   useEffect(() => {
     // Check for existing user cookie
-    const cookies = document.cookie.split(';');
-    const userCookie = cookies.find(cookie => cookie.trim().startsWith('user_id='));
+    const userIdFromCookie = getCookie('user_id');
     
-    if (userCookie) {
-      const userIdValue = userCookie.split('=')[1];
-      setUserId(userIdValue);
+    console.log('Cookie check:', {
+      allCookies: document.cookie,
+      userIdFromCookie,
+      hasUserCookie: userIdFromCookie !== null
+    });
+    
+    if (userIdFromCookie) {
+      setUserId(userIdFromCookie);
     }
     
     setIsLoading(false);
@@ -20,7 +25,7 @@ export function useUserCookie() {
   const hasUserCookie = userId !== null;
 
   const clearUserCookie = () => {
-    document.cookie = 'user_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    deleteCookie('user_id');
     setUserId(null);
   };
 

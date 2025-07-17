@@ -105,6 +105,9 @@ Changelog:
 - July 05, 2025. Improved tab layout with 4-column grid and prominent styling
 - July 06, 2025. Updated header layout with left-aligned text and right-aligned white logo
 - July 06, 2025. Fixed SSL configuration for custom domain deployment (HTTPS port 443)
+- July 17, 2025. Added cookie-based email collection system with Railway database storage
+- July 17, 2025. Fixed Vercel deployment issues with individual serverless functions
+- July 17, 2025. Improved cookie compatibility for production deployment with localStorage fallback
 ```
 
 ## User Preferences

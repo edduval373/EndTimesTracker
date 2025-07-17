@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation } from '@tanstack/react-query';
 import { insertUserSchema } from '@shared/schema';
+import { setCookie } from '@/utils/cookies';
 import { z } from 'zod';
 
 interface EmailDialogProps {
@@ -39,8 +40,13 @@ export function EmailDialog({ isOpen, onClose }: EmailDialogProps) {
       return response.json();
     },
     onSuccess: (user) => {
-      // Set cookie to remember user
-      document.cookie = `user_id=${user.id}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Strict`;
+      // Set cookie to remember user - compatible with production
+      setCookie('user_id', user.id.toString(), 365);
+      
+      console.log('User created and cookie set:', {
+        userId: user.id,
+        cookieSet: document.cookie.includes('user_id=')
+      });
       
       toast({
         title: "Welcome to End Times Tracker! 🙏",
