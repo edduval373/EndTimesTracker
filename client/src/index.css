@@ -1,0 +1,150 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(222.2, 84%, 4.9%);
+  --muted: hsl(210, 40%, 98%);
+  --muted-foreground: hsl(215.4, 16.3%, 46.9%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(222.2, 84%, 4.9%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(222.2, 84%, 4.9%);
+  --border: hsl(214.3, 31.8%, 91.4%);
+  --input: hsl(214.3, 31.8%, 91.4%);
+  --primary: hsl(221.2, 83.2%, 53.3%);
+  --primary-foreground: hsl(210, 40%, 98%);
+  --secondary: hsl(210, 40%, 96%);
+  --secondary-foreground: hsl(222.2, 84%, 4.9%);
+  --accent: hsl(210, 40%, 96%);
+  --accent-foreground: hsl(222.2, 84%, 4.9%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(222.2, 84%, 4.9%);
+  --radius: 0.5rem;
+  
+  /* Custom colors for End Times Tracker */
+  --navy: hsl(221, 60%, 28%);
+  --royal: hsl(217, 91%, 60%);
+  --gold: hsl(45, 93%, 47%);
+  --success: hsl(142, 76%, 36%);
+  --warning: hsl(0, 84%, 56%);
+}
+
+.dark {
+  --background: hsl(222.2, 84%, 4.9%);
+  --foreground: hsl(210, 40%, 98%);
+  --muted: hsl(217.2, 32.6%, 17.5%);
+  --muted-foreground: hsl(215, 20.2%, 65.1%);
+  --popover: hsl(222.2, 84%, 4.9%);
+  --popover-foreground: hsl(210, 40%, 98%);
+  --card: hsl(222.2, 84%, 4.9%);
+  --card-foreground: hsl(210, 40%, 98%);
+  --border: hsl(217.2, 32.6%, 17.5%);
+  --input: hsl(217.2, 32.6%, 17.5%);
+  --primary: hsl(210, 40%, 98%);
+  --primary-foreground: hsl(222.2, 84%, 4.9%);
+  --secondary: hsl(217.2, 32.6%, 17.5%);
+  --secondary-foreground: hsl(210, 40%, 98%);
+  --accent: hsl(217.2, 32.6%, 17.5%);
+  --accent-foreground: hsl(210, 40%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(212.7, 26.8%, 83.9%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}
+
+@layer utilities {
+  .font-inter {
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .font-georgia {
+    font-family: 'Georgia', serif;
+  }
+  
+  .text-navy {
+    color: var(--navy);
+  }
+  
+  .bg-navy {
+    background-color: var(--navy);
+  }
+  
+  .text-royal {
+    color: var(--royal);
+  }
+  
+  .bg-royal {
+    background-color: var(--royal);
+  }
+  
+  .text-gold {
+    color: var(--gold);
+  }
+  
+  .bg-gold {
+    background-color: var(--gold);
+  }
+  
+  .text-success {
+    color: var(--success);
+  }
+  
+  .bg-success {
+    background-color: var(--success);
+  }
+  
+  .text-warning {
+    color: var(--warning);
+  }
+  
+  .bg-warning {
+    background-color: var(--warning);
+  }
+  
+  .jerusalem-backdrop {
+    background: 
+      linear-gradient(135deg, rgba(30, 64, 175, 0.85), rgba(29, 78, 216, 0.85)),
+      linear-gradient(to bottom, 
+        transparent 0%, 
+        transparent 70%, 
+        rgba(255, 255, 255, 0.4) 75%, 
+        rgba(255, 255, 255, 0.6) 80%, 
+        rgba(255, 255, 255, 0.5) 85%, 
+        rgba(255, 255, 255, 0.7) 88%, 
+        rgba(255, 255, 255, 0.4) 92%, 
+        rgba(255, 255, 255, 0.6) 95%, 
+        rgba(255, 255, 255, 0.3) 100%
+      );
+    position: relative;
+  }
+  
+  .jerusalem-backdrop::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      radial-gradient(circle at 15% 10%, rgba(255, 255, 255, 0.6) 1px, transparent 2px),
+      radial-gradient(circle at 35% 8%, rgba(255, 255, 255, 0.7) 1px, transparent 2px),
+      radial-gradient(circle at 55% 12%, rgba(255, 255, 255, 0.5) 1px, transparent 2px),
+      radial-gradient(circle at 75% 15%, rgba(255, 255, 255, 0.6) 1px, transparent 2px),
+      radial-gradient(circle at 85% 18%, rgba(255, 255, 255, 0.8) 1px, transparent 2px);
+    background-size: 200px 200px, 150px 150px, 180px 180px, 160px 160px, 140px 140px;
+    background-position: 0 0, 50px 20px, 100px 10px, 25px 5px, 75px 15px;
+    pointer-events: none;
+  }
+}

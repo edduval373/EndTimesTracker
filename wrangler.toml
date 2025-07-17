@@ -1,0 +1,20 @@
+name = "end-times-tracker"
+main = "dist/index.js"
+compatibility_date = "2024-01-01"
+
+[build]
+command = "npm run build"
+cwd = "."
+watch_dir = "client"
+
+[vars]
+NODE_ENV = "production"
+
+[[env.production]]
+name = "end-times-tracker"
+routes = [
+  { pattern = "endtimestracker.app/*", zone_name = "endtimestracker.app" }
+]
+
+[env.production.vars]
+NODE_ENV = "production"
