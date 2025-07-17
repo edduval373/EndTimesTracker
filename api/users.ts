@@ -16,6 +16,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
       console.log('POST /api/users - Request body:', req.body);
       console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
+      console.log('DATABASE_URL prefix:', process.env.DATABASE_URL?.substring(0, 20) + '...');
       
       // Check if DATABASE_URL is available
       if (!process.env.DATABASE_URL) {
@@ -28,6 +29,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       
       const validatedData = insertUserSchema.parse(req.body);
       console.log('Validated data:', validatedData);
+      
+      // Test database connection with timeout
+      console.log('Testing database connection...');
+      const connectionTest = Promise.race([
+        storage.getUserByEmail('test@connection.com'),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Connection timeout')), 5000))
+      ]);
+      
+      try {
+        const testResult = await connectionTest;
+        console.log('Connection test result:', testResult);
+      } catch (connError) {
+        console.error('Connection test failed:', connError);
+        throw new Error(`Database connection failed: ${connError instanceof Error ? connError.message : String(connError)}`);
+      }
       
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(validatedData.email);
@@ -44,9 +60,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } catch (error) {
       console.error('Error creating user:', error);
       console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      console.error('Error name:', error instanceof Error ? error.name : 'Unknown');
       return res.status(500).json({ 
         message: "Failed to create user", 
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
+        type: error instanceof Error ? error.name : 'Unknown'
       });
     }
   }
