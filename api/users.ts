@@ -14,20 +14,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (req.method === 'POST') {
     try {
+      console.log('POST /api/users - Request body:', req.body);
+      console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
+      
+      // Check if DATABASE_URL is available
+      if (!process.env.DATABASE_URL) {
+        console.error('DATABASE_URL environment variable is not set');
+        return res.status(500).json({ 
+          message: "Database configuration error", 
+          error: "DATABASE_URL environment variable is not set"
+        });
+      }
+      
       const validatedData = insertUserSchema.parse(req.body);
+      console.log('Validated data:', validatedData);
       
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(validatedData.email);
+      console.log('Existing user:', existingUser);
+      
       if (existingUser) {
         return res.status(200).json(existingUser);
       }
       
       // Create new user
       const newUser = await storage.createUser(validatedData);
+      console.log('New user created:', newUser);
       return res.status(201).json(newUser);
     } catch (error) {
       console.error('Error creating user:', error);
-      return res.status(500).json({ message: "Failed to create user" });
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      return res.status(500).json({ 
+        message: "Failed to create user", 
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
   }
 
