@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertNewsEventSchema } from "@shared/schema";
+import { insertNewsEventSchema, insertUserSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Biblical Events routes
@@ -99,6 +99,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(topic);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch prophetic topic" });
+    }
+  });
+
+  // Users routes
+  app.get("/api/users", async (req, res) => {
+    const { email } = req.query;
+    
+    if (!email || typeof email !== 'string') {
+      return res.status(400).json({ message: "Email parameter is required" });
+    }
+    
+    try {
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json(user);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  app.post("/api/users", async (req, res) => {
+    try {
+      const validatedData = insertUserSchema.parse(req.body);
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(validatedData.email);
+      if (existingUser) {
+        return res.status(200).json(existingUser);
+      }
+      
+      // Create new user
+      const newUser = await storage.createUser(validatedData);
+      res.status(201).json(newUser);
+    } catch (error) {
+      console.error('Error creating user:', error);
+      res.status(500).json({ message: "Failed to create user" });
     }
   });
 
